@@ -4,7 +4,12 @@ body {
 }
 
 ol, ul {
-  padding-left: 30px;
+  list-style-type: none;
+  padding: 0;
+}
+
+.emphasis {
+  font-weight: bold;
 }
 
 .board-row:after {
@@ -47,4 +52,5 @@ ol, ul {
 
 .game-info {
   margin-left: 20px;
+  width: 150px;
 }

@@ -14,32 +14,35 @@ class Board extends React.Component {
   renderSquare(i) {
     return (
         <Square 
+          key={i}
           value={this.props.squares[i]}
           onClick={() => this.props.onClick(i)}
         />
       );
   }
 
-  render() {
+  renderRow(row) {
+    const rowContent = [0, 1, 2].map((col) => {
+      return this.renderSquare(row * 3 + col);
+    });
     return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+      <div className="board-row" key={row}>
+        {rowContent}
       </div>
     );
+  }
+
+  renderBoard() {
+    return [0, 1, 2].map((i) => {return (this.renderRow(i));});
+  }
+
+  render() {
+    const board = this.renderBoard();
+    return (
+      <div>
+        {board}
+      </div>
+      );
   }
 }
 
@@ -49,6 +52,7 @@ class Game extends React.Component {
     this.state = {
       history: [{
         squares: Array(9).fill(null),
+        location: null
       }],
       stepNumber: 0,
       xIsNext: true
@@ -65,7 +69,8 @@ class Game extends React.Component {
     squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
       history: history.concat([{
-        squares: squares
+        squares: squares,
+        location: i
       }]),
       stepNumber: history.length, // old history reference, length = index of newly inserted step
       xIsNext: !this.state.xIsNext
@@ -86,10 +91,10 @@ class Game extends React.Component {
 
     const moves = history.map((step, move) => {
       const desc = move ?
-        'Move #' + move :
-        'Game start';
+        '#' + move + ': ' + getDisplayedLocation(step.location):
+        '#0 Game start';
       return (
-        <li key={move}>
+        <li key={move} className={move === this.state.stepNumber ? 'emphasis' : ''}>
           <a href="#" onClick={() => this.jumpTo(move)}>{desc}</a>
         </li>
         );
@@ -125,6 +130,10 @@ ReactDOM.render(
   <Game />,
   document.getElementById('root')
 );
+
+function getDisplayedLocation(i) {
+  return '(' + (Math.floor(i / 3) + 1) + ', '  + ((i % 3) + 1) + ')';
+}
 
 function calculateWinner(squares) {
   const lines = [
