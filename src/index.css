@@ -12,6 +12,10 @@ ol, ul {
   font-weight: bold;
 }
 
+.emphasis.square {
+  color: red;
+}
+
 .board-row:after {
   clear: both;
   content: "";

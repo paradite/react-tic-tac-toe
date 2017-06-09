@@ -3,8 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 function Square(props) {
+  const className = props.winningLocation === true ? 'emphasis square' : 'square';
   return (
-    <button className="square" onClick={props.onClick}>
+    <button className={className} onClick={props.onClick}>
       {props.value}
     </button>
   );
@@ -12,10 +13,16 @@ function Square(props) {
 
 class Board extends React.Component {
   renderSquare(i) {
+    let winningLocation = false;
+    if (this.props.winningLocations && this.props.winningLocations.includes(i)) {
+      winningLocation = true;
+    }
+
     return (
         <Square 
           key={i}
           value={this.props.squares[i]}
+          winningLocation={winningLocation}
           onClick={() => this.props.onClick(i)}
         />
       );
@@ -64,7 +71,9 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (calculateWinner(squares) || squares[i] === 'X' || squares[i] === 'O') {
+    const { winner, } = calculateWinner(squares);
+
+    if (winner || squares[i] === 'X' || squares[i] === 'O') {
       return;
     }
     squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -94,7 +103,7 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    const { winner, winningLocations } = calculateWinner(current.squares);
     const orderToggleText = this.state.ascendingOrder ? 'Ascending' : 'Descending';
 
     const moves = history.map((step, move) => {
@@ -124,6 +133,7 @@ class Game extends React.Component {
         <div className="game-board">
           <Board 
             squares={current.squares}
+            winningLocations={winningLocations}
             onClick={(i) => this.handleClick(i)}
           />
         </div>
@@ -162,8 +172,8 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return { winner: squares[a], winningLocations: [a, b, c] };
     }
   }
-  return null;
+  return { winner: null, winningLocations: null };
 }
